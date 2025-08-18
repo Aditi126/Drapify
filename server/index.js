@@ -7,6 +7,7 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const { type } = require("os");
+const { error } = require("console");
 
 app.use(express.json());
 app.use(cors());
@@ -122,7 +123,6 @@ app.post('/removeproduct', async (req, res) => {
 //Api for getting all product
 app.get('/allproducts', async (req, res) => {
     let products = await Product.find({});
-    console.log("All Products fetched");
     res.send(products);
 })
 
@@ -132,5 +132,80 @@ app.listen(port, (err)=>{
     }
     else {
         console.log("Error: " + err);
+    }
+})
+
+const Users = mongoose.model('Users',{
+    name: {
+        type: String,
+    },
+    email: {
+        type: String,
+        unique: true,
+        required: true,
+    },
+    password: {
+        type: String,
+    },
+    address: {
+        type: String,
+    },
+    cartData: {
+        type: Object
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+    }
+})
+
+app.post('/signup', async (req, res)=>{
+    let check = await Users.findOne({email: req.body.email});
+    if(check){
+        return res.status(400).json({success: false, errors:"User with this email already exists"})
+    }
+    let cart = {};
+    for(let i = 0; i<300; i++){
+        cart[i] = 0;
+    }
+    const user = new Users({
+        name: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        cartData: cart,
+    })
+
+    await user.save();
+
+    const data = {
+        user: {
+            id: user.id
+        }
+    }
+
+    const token = jwt.sign(data, '#1#2');
+    res.json({success: true})
+})
+
+//endpoint for user login
+app.post('/login', async (req, res)=>{
+    let user = await Users.findOne({email: req.body.email});
+    if(user){
+        const passCheck = req.body.password === user.password;
+        if(passCheck){
+            const data = {
+                user: {
+                    id: user.id
+                }
+            }
+            const token = jwt.sign(data, '#1#2');
+            res.json({success:true, token});
+        }
+        else{
+            res.json({success:false, errors:"Wrong Password"});
+        }
+    } 
+    else{
+        res.json({success:false, errors: "Wrong email id"});
     }
 })
