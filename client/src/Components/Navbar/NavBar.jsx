@@ -3,7 +3,7 @@ import './NavBar.css'
 import { useState } from 'react'
 import logo from '../Assets/logo.png'
 import cart_icon from '../Assets/cart_icon.png'
-import { Link } from 'react-router-dom'
+import { Link, replace } from 'react-router-dom'
 import { ShopContext } from '../../Context/ShopContext'
 import dropdown_icon from '../Assets/dropdown_icon.png'
 import nav_dropdown_icon from '../Assets/nav_dropdown.png'
@@ -29,9 +29,11 @@ const NavBar = () => {
         <li onClick={()=>{setMenu("kids")}}> <Link style={{textDecoration: "none", color: "#626262"}} to={'/kids'}>Kid</Link>  {menu==="kids"?<hr/>:<></>}</li>
       </ul>
       <div className="nav-login-cart">
-        <Link style={{textDecoration: "none"}} to={'/login'}>
-          <button>Login</button>
-        </Link>
+        
+        {localStorage.getItem('auth-token')? 
+        <button onClick={()=>{localStorage.removeItem('auth-token');window.location.replace('/')}}>Logout</button> : 
+        <Link style={{textDecoration: "none"}} to={'/login'}><button>Login</button></Link>}
+        
         <Link style={{textDecoration: "none"}} to={'/cart'}>
           <img src={cart_icon} alt="" />
         </Link>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import './CSS/LoginSignup.css'
-import { Link } from 'react-router-dom';
 
 
 const LoginSignup = () => {
@@ -16,7 +15,23 @@ const LoginSignup = () => {
   }
   const login = async () => {
     console.log("Login Function", formData);
-    setFormData({ username: "", password: "", email: "" });
+    let responseData;
+    await fetch('http://localhost:4000/login',{
+      method: 'POST',
+      headers:{
+        Accept:'application/form-data',
+        'Content-type':'application/json',
+      },
+      body: JSON.stringify(formData)
+    }).then((response)=>response.json()).then((data)=>responseData=data)
+
+    if(responseData.success){
+      localStorage.setItem('auth-token', responseData.token);
+      window.location.replace("/");
+    }
+    else{
+      alert(responseData.errors);
+    }
   }
   const signup = async () => {
     let responseData;
@@ -30,8 +45,11 @@ const LoginSignup = () => {
     }).then((response)=>response.json()).then((data)=>responseData=data)
 
     if(responseData.success){
-      localStorage.setItem('auth_token', responseData.token);
-      window.location.replace("/")
+      localStorage.setItem('auth-token', responseData.token);
+      window.location.replace("/");
+    }
+    else{
+      alert(responseData.errors);
     }
   }
 
@@ -44,7 +62,6 @@ const LoginSignup = () => {
           <input name='email' value={formData.email} onChange={changeHandler} type="text" placeholder='Email address' />
           <input name='password' value={formData.password} onChange={changeHandler} type="password" placeholder='Password' />
         </div>
-        <Link to={()=>{if(signup.responseData.success) return "/" ; else alert(signup.responseData.error())}}>
         <button disabled={
           state === "Sign Up"
             ? !(formData.username && formData.email && formData.password)
@@ -52,7 +69,6 @@ const LoginSignup = () => {
         } onClick={() => {
           state === 'Login' ? login() : signup();
         }}>Continue</button>
-        </Link>
         {
           state === 'Sign Up' ?
             <p className="loginsignup-login">Already have an account? <span onClick={() => { setState("Login") }}>Login</span> </p> :
