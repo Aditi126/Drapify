@@ -154,7 +154,7 @@ const fetchUser = async (req,res,next)=>{
             req.user = data.user;
             next();
         }catch(err){
-            res.status(401).sent({errors:"Please authenticate using a valid token"})
+            res.status(401).send({errors:"Please authenticate using a valid token"})
         }
     }
 }
