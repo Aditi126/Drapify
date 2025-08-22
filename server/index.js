@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cors());
 
 //database connection with mongoDB
-mongoose.connect('mongodb+srv://aditidevelopment:22918120@cluster0.keab2kv.mongodb.net/Drapify')
+mongoose.connect(process.env.MONGO_URL)
 
 //api creation
 
