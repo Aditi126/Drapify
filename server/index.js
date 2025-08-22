@@ -150,7 +150,7 @@ const fetchUser = async (req,res,next)=>{
     }
     else{
         try{
-            const data = jwt.verify(token, process.env.JWT_SECRET);
+            const data = jwt.verify(token, '2cba9aaa16dbd9e73566aae478b745e4');
             req.user = data.user;
             next();
         }catch(err){
@@ -239,7 +239,7 @@ app.post('/signup', async (req, res)=>{
         }
     }
 
-    const token = jwt.sign(data, process.env.JWT_SECRET);
+    const token = jwt.sign(data, '2cba9aaa16dbd9e73566aae478b745e4');
     res.json({success: true})
 })
 
@@ -254,7 +254,7 @@ app.post('/login', async (req, res)=>{
                     id: user.id
                 }
             }
-            const token = jwt.sign(data, process.env.JWT_SECRET);
+            const token = jwt.sign(data, '2cba9aaa16dbd9e73566aae478b745e4');
             res.json({success:true, token});
         }
         else{
