@@ -1,4 +1,4 @@
-const port = 4000;
+const port = process.env.PORT || 4000;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -150,7 +150,7 @@ const fetchUser = async (req,res,next)=>{
     }
     else{
         try{
-            const data = jwt.verify(token, '#1#2');
+            const data = jwt.verify(token, process.env.JWT_SECRET);
             req.user = data.user;
             next();
         }catch(err){
@@ -239,7 +239,7 @@ app.post('/signup', async (req, res)=>{
         }
     }
 
-    const token = jwt.sign(data, '#1#2');
+    const token = jwt.sign(data, process.env.JWT_SECRET);
     res.json({success: true})
 })
 
@@ -254,7 +254,7 @@ app.post('/login', async (req, res)=>{
                     id: user.id
                 }
             }
-            const token = jwt.sign(data, '#1#2');
+            const token = jwt.sign(data, process.env.JWT_SECRET);
             res.json({success:true, token});
         }
         else{
