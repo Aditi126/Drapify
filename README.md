@@ -7,7 +7,8 @@ It comes with a **customer-facing store** and a **dedicated admin panel** for pr
 
 ## 🚀 Features
 
-### 🛒 Customer Side
+### 🛒 Customer Site
+![Customer Store](./screenshots/home.png)
 - Browse products
 - View new collections & trending categories
 - User authentication with JWT
@@ -15,6 +16,7 @@ It comes with a **customer-facing store** and a **dedicated admin panel** for pr
 - Persist cart per user
 
 ### 🛠️ Admin Panel
+![Admin Panel](./screenshots/admin.png)
 - Add new products with image upload (Multer)
 - Remove products
 - View all products
@@ -28,8 +30,8 @@ It comes with a **customer-facing store** and a **dedicated admin panel** for pr
 - **Database**: MongoDB Atlas
 - **Authentication**: JSON Web Tokens (JWT)
 - **Image Upload**: Multer
-- **CORS Handling**: `cors` middleware
-- **Render**: Deployment
+- **CORS Handling**: cors middleware
+- **Deployment**: Render
 
 ---
 
@@ -37,37 +39,8 @@ It comes with a **customer-facing store** and a **dedicated admin panel** for pr
 ```bash
 drapify/
 ├── admin/                 # React (Vite) admin panel
-│   ├── public/
-│   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/        # Admin pages
-│   │   ├── utils/        # Helper functions, API calls
-│   │   └── contexts/     # State management
-│   ├── package.json
-│   └── vite.config.js
-│
 ├── client/               # React (CRA) customer-facing store
-│   ├── public/
-│   ├── src/
-│   │   ├── components/   # Reusable UI components
-│   │   ├── pages/        # Customer pages
-│   │   ├── utils/        # Helper functions, API calls
-│   │   └── contexts/     # State management (Cart, Auth)
-│   ├── package.json
-│   └── README.md
-│
 ├── server/               # Backend (Node.js + Express)
-│   ├── config/           # Database configuration
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Custom middleware (auth, upload, etc.)
-│   ├── models/           # MongoDB models
-│   ├── routes/           # API routes
-│   ├── uploads/          # Multer upload folder
-│   ├── .env              # Environment variables
-│   ├── .gitignore        # Git ignore rules
-│   ├── index.js          # Entry point
-│   └── package.json
-│
 └── README.md             # Project documentation
 ```
 
@@ -96,7 +69,6 @@ Run the backend:
 ```bash
 npm start
 ```
-Server will run on http://localhost:4000
 
 3️⃣ Setup Client (User Storefront - CRA)
 ```bash
@@ -104,7 +76,6 @@ cd client
 npm install
 npm start
 ```
-Frontend client will run on http://localhost:3000
 
 4️⃣ Setup Admin Panel (Vite)
 ```bash
@@ -112,5 +83,5 @@ cd admin
 npm install
 npm run dev
 ```
-Admin panel will run on http://localhost:5173
+
 
