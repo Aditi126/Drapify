@@ -4,7 +4,6 @@ const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
 const path = require("path");
 const cors = require("cors");
 const { type } = require("os");
@@ -23,25 +22,17 @@ app.get("/", (req, res)=>{
 })
 
 
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "drapify", 
-    format: async (req, file) => "png", 
-    public_id: (req, file) => Date.now(), 
-  },
-});
+//image storage
+const storage = multer.diskStorage({
+    destination: './upload/images',
+    filename: (req, file, cb) =>{
+        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname )}`)
+    } 
+})
 
 const upload = multer({storage: storage})
 
+//Creating upload endpoint for images
 
 app.use('/images', express.static('./upload/images'))
 
