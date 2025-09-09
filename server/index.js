@@ -4,12 +4,10 @@ const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
 const path = require("path");
 const cors = require("cors");
 const { type } = require("os");
 const { error } = require("console");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 app.use(express.json());
 app.use(cors());
@@ -18,41 +16,31 @@ app.use(cors());
 mongoose.connect('mongodb+srv://aditidevelopment:22918120@cluster0.keab2kv.mongodb.net/Drapify')
 
 //api creation
-
-app.get("/", (req, res)=>{
+app.get("/", (req, res) => {
     res.send("Express App is Running");
 })
 
-
-//Configure cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
+//Configure multer for local storage
+const storage = multer.diskStorage({
+    destination: './upload/images',
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+    }
 });
 
-//Image Upload
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "drapify", 
-    format: async (req, file) => "png", 
-    public_id: (req, file) => Date.now(),
-  },
-});
+const upload = multer({ storage: storage });
 
-const upload = multer({storage: storage})
+//Creating static folder for uploaded images
+app.use('/images', express.static('./upload/images'));
 
 //Creating upload endpoint for images
-
-app.use('/images', express.static('./upload/images'))
-
-app.post("/upload", upload.single('product'), (req, res)=>{
+app.post("/upload", upload.single('product'), (req, res) => {
     res.json({
         success: 1,
         image_url: `https://drapify-backend.onrender.com/images/${req.file.filename}`
     })
 })
+
 
 //Schema for creating products
 
