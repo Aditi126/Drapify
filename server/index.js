@@ -23,9 +23,9 @@ app.get("/", (req, res) => {
 
 // ----------------- Cloudinary Setup -----------------
 cloudinary.config({
-  cloud_name: "your_cloud_name",
-  api_key: "your_api_key",
-  api_secret: "your_api_secret",
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
 });
 
 // Multer Cloudinary Storage
@@ -97,7 +97,7 @@ app.post("/addproduct", async (req, res) => {
   const product = new Product({
     id: id,
     name: req.body.name,
-    image: req.body.image,
+    image: req.file.path,
     category: req.body.category,
     new_price: req.body.new_price,
     old_price: req.body.old_price,
