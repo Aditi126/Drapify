@@ -1,4 +1,3 @@
-// ShopCategory.jsx - Updated
 import React, { useContext, useState } from 'react'
 import './CSS/ShopCategory.css'
 import { ShopContext } from '../Context/ShopContext'
@@ -7,12 +6,13 @@ import Item from '../Components/Item/Item'
 
 const ShopCategory = (props) => {
   const { all_products } = useContext(ShopContext)
-  const [sortOption, setSortOption] = useState("default")
+  const [sortOption, setSortOption] = useState()
   const [open, setOpen] = useState(false)
 
   let filteredProducts = all_products.filter(
     (item) => props.category === item.category
   )
+
 
   if (sortOption === "price-asc") {
     filteredProducts.sort((a, b) => a.new_price - b.new_price)
@@ -24,81 +24,46 @@ const ShopCategory = (props) => {
     filteredProducts.sort((a, b) => b.name.localeCompare(a.name))
   }
 
-  const getSortLabel = () => {
-    switch(sortOption) {
-      case "price-asc": return "Price (low to high)"
-      case "price-desc": return "Price (high to low)"
-      case "name-asc": return "Name A-Z"
-      case "name-desc": return "Name Z-A"
-      default: return "Default"
-    }
-  }
-
   return (
     <div className='shop-category'>
-      
+      <img className='shopcategory-banner' src={props.banner} alt="" />
       <div className="shopcategory-indexSort">
         <p>
-          <span>Showing 1-{filteredProducts.length}</span> of {filteredProducts.length} products
+          <span>Showing 1-12</span> out of 26 products
         </p>
-        
-        <div className={`shopcategory-sort ${open ? 'open' : ''}`} onClick={() => setOpen(!open)}>
-          <div>{getSortLabel()} <img src={dropdown_icon} alt="dropdown" /></div>
-          
-          {open && (
-            <div className="dropdown-menu">
-              <button 
-                className={sortOption === "default" ? "active" : ""}
-                onClick={() => { setSortOption("default"); setOpen(false) }}
-              >
-                Default
-              </button>
-              <button 
-                className={sortOption === "price-asc" ? "active" : ""}
-                onClick={() => { setSortOption("price-asc"); setOpen(false) }}
-              >
-                Price (low to high)
-              </button>
-              <button 
-                className={sortOption === "price-desc" ? "active" : ""}
-                onClick={() => { setSortOption("price-desc"); setOpen(false) }}
-              >
-                Price (high to low)
-              </button>
-              <button 
-                className={sortOption === "name-asc" ? "active" : ""}
-                onClick={() => { setSortOption("name-asc"); setOpen(false) }}
-              >
-                Name A-Z
-              </button>
-              <button 
-                className={sortOption === "name-desc" ? "active" : ""}
-                onClick={() => { setSortOption("name-desc"); setOpen(false) }}
-              >
-                Name Z-A
-              </button>
-            </div>
-          )}
+        <div className="shopcategory-sort" onClick={() => setOpen(!open)}>
+          <div>Sort by <img src={dropdown_icon} alt="" /></div>
+          <div>
+            {
+              open && (
+                <div className="dropdown-menu" >
+                  <button onClick={() => { setSortOption("default"); setOpen(!open) }}>Default</button>
+                  <button onClick={() => { setSortOption("price-asc"); setOpen(!open) }}>Price (low to high)</button>
+                  <button onClick={() => { setSortOption("price-desc"); setOpen(!open) }}>Price (high to low)</button>
+                  <button onClick={() => { setSortOption("name-asc"); setOpen(!open) }}>Name A-Z</button>
+                  <button onClick={() => { setSortOption("name-desc"); setOpen(!open) }}>Name Z-A</button>
+                </div>)
+            }
+          </div>
         </div>
       </div>
-      
       <div className="shopcategory-products">
-        {filteredProducts.map((item, i) => (
-          <Item 
-            key={i}
-            id={item.id}
-            name={item.name}
-            image={item.image}
-            new_price={item.new_price}
-            old_price={item.old_price} 
-          />
-        ))}
+        {filteredProducts.map((item, i) => {
+          if (props.category === item.category) {
+            return <Item key={i}
+              id={item.id}
+              name={item.name}
+              image={item.image}
+              new_price={item.new_price}
+              old_price={item.old_price} />
+          }
+          else {
+            return null;
+          }
+        })}
       </div>
-      
-      <div className="loadmore-container">
-        <div className="shopcategory-loadmore">
-          Explore More
-        </div>
+      <div className="shopcategory-loadmore">
+        Explore More
       </div>
     </div>
   )
