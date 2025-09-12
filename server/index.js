@@ -21,15 +21,6 @@ app.get("/", (req, res)=>{
     res.send("Express App is Running");
 })
 
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,  // add to .env
-  api_key: process.env.CLOUDINARY_API_KEY,        // add to .env
-  api_secret: process.env.CLOUDINARY_API_SECRET   // add to .env
-});
-
 
 //image storage
 const storage = multer.diskStorage({
