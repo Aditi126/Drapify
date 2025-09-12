@@ -25,42 +25,32 @@ const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET  
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,  // add to .env
+  api_key: process.env.CLOUDINARY_API_KEY,        // add to .env
+  api_secret: process.env.CLOUDINARY_API_SECRET   // add to .env
 });
 
 
 //image storage
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "drapify",   
-    allowed_formats: ["jpg", "png", "jpeg"],
-    public_id: (req, file) => `${file.fieldname}_${Date.now()}`,
-  },
-});
+const storage = multer.diskStorage({
+    destination: './upload/images',
+    filename: (req, file, cb) =>{
+        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname )}`)
+    } 
+})
 
 const upload = multer({storage: storage})
 
 //Creating upload endpoint for images
 
-app.post("/upload", upload.single("product"), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ success: 0, message: "No file uploaded" });
-    }
+app.use('/images', express.static('./upload/images'))
 
-    return res.json({
-      success: 1,
-      image_url: req.file.path,
-    });
-  } catch (err) {
-    console.error("Upload error:", err);
-    return res.status(500).json({ success: 0, error: err.message });
-  }
-});
-
+app.post("/upload", upload.single('product'), (req, res)=>{
+    res.json({
+        success: 1,
+        image_url: `https://drapify-backend.onrender.com/images/${req.file.filename}`
+    })
+})
 
 //Schema for creating products
 
@@ -113,7 +103,7 @@ app.post('/addproduct', async (req, res)=>{
     const product = new Product({
         id: id,
         name: req.body.name,
-        image: req.body.image_url,
+        image: req.file.path,
         category: req.body.category,
         new_price: req.body.new_price,
         old_price: req.body.old_price,
