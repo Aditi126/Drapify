@@ -6,107 +6,139 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-const { type } = require("os");
-const { error } = require("console");
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "https://https://drapify-admin.onrender.com", // Replace with your actual frontend domain
+  credentials: true
+}));
 
-//database connection with mongoDB
+// Database connection with MongoDB
 mongoose.connect('mongodb+srv://aditidevelopment:22918120@cluster0.keab2kv.mongodb.net/Drapify')
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => console.log("MongoDB connection error:", err));
 
-//api creation
-
-app.get("/", (req, res)=>{
-    res.send("Express App is Running");
-})
-
-
-//image storage
+// Image storage
 const storage = multer.diskStorage({
-    destination: './upload/images',
-    filename: (req, file, cb) =>{
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname )}`)
-    } 
-})
+  destination: './upload/images',
+  filename: (req, file, cb) => {
+    return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+  }
+});
 
-const upload = multer({storage: storage})
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 
-//Creating upload endpoint for images
+// Creating upload endpoint for images
+app.use('/images', express.static('upload/images'));
 
-app.use('/images', express.static('./upload/images'))
+app.post("/upload", upload.single('product'), (req, res) => {
+  res.json({
+    success: 1,
+    image_url: `https://drapify-backend.onrender.com/images/${req.file.filename}`
+  });
+});
 
-app.post("/upload", upload.single('product'), (req, res)=>{
-    res.json({
-        success: 1,
-        image_url: `https://drapify-backend.onrender.com/images/${req.file.filename}`
-    })
-})
-
-//Schema for creating products
-
+// Schema for creating products
 const Product = mongoose.model("Product", {
-    id: {
-        type: Number,
-        required: true,
-    },
-    name: {        
-        type: String,
-        required: true,
-    },
-    image: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-    },
-    new_price: {
-        type: Number,
-        required: true,
-    },
-    old_price: {
-        type: Number,
-        required: true,
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-    },
-    available: {
-        type: Boolean,
-        default: true,
-    },
-})
+  id: {
+    type: Number,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  new_price: {
+    type: Number,
+    required: true,
+  },
+  old_price: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  available: {
+    type: Boolean,
+    default: true,
+  },
+});
 
-app.post('/addproduct', async (req, res)=>{
+app.post('/addproduct', upload.single('product'), async (req, res) => {
+  try {
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
+    
+    // Validate required fields
+    if (!req.file || !req.body.name || !req.body.category || 
+        !req.body.new_price || !req.body.old_price) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required including the image"
+      });
+    }
+
     let products = await Product.find({});
     let id;
-    if(products.length>0){
-        let last_product_array = products.slice(-1);
-        let last_product = last_product_array[0];
-        id = last_product.id + 1;
+    if (products.length > 0) {
+      let last_product_array = products.slice(-1);
+      let last_product = last_product_array[0];
+      id = last_product.id + 1;
+    } else {
+      id = 1;
     }
-    else{
-        id = 1;
-    }
+    
     const product = new Product({
-        id: id,
-        name: req.body.name,
-        image: req.file.path,
-        category: req.body.category,
-        new_price: req.body.new_price,
-        old_price: req.body.old_price,
+      id: id,
+      name: req.body.name,
+      image: `https://drapify-backend.onrender.com/images/${req.file.filename}`, // Fixed path
+      category: req.body.category,
+      new_price: req.body.new_price,
+      old_price: req.body.old_price,
     });
-    console.log(product);
+    
+    console.log("Product to save:", product);
     await product.save();
-    console.log("Saved");
+    console.log("Product saved successfully");
+    
     res.json({
-        success: true,
-        name: req.body.name,
+      success: true,
+      name: req.body.name,
+      message: "Product added successfully"
     });
-})
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+// ... rest of your code remains the same
 
 //Api for deleting products
 app.post('/removeproduct', async (req, res) => {

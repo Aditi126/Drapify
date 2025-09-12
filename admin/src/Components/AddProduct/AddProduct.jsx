@@ -22,32 +22,49 @@ const AddProduct = () => {
   }
 
   const add_product = async () => {
-    let responeData;
+  try {
+    let responseData;
     let product = productDetails;
     let formData = new FormData();
     formData.append('product', image);
-    await fetch('https://drapify-backend.onrender.com/upload',{
+    
+    // Upload image
+    const uploadResponse = await fetch('https://drapify-backend.onrender.com/upload', {
       method: 'POST',
-      headers: {
-        Accept: 'application/json'
-      },
       body: formData,
-    }).then((response)=> response.json()).then((data)=>{responeData=data})
-    if(responeData.success){
-      product.image = responeData.image_url;
+    });
+    
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed: ${uploadResponse.status}`);
+    }
+    
+    responseData = await uploadResponse.json();
+    
+    if (responseData.success) {
+      product.image = responseData.image_url;
       console.log(product);
-      await fetch('https://drapify-backend.onrender.com/addproduct', {
+      
+      // Add product
+      const addProductResponse = await fetch('https://drapify-backend.onrender.com/addproduct', {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(product),
-      }).then((res)=>res.json()).then((data)=>{
-        data.success?alert('Product Added'): alert('Failed')
-      })
+      });
+      
+      if (!addProductResponse.ok) {
+        throw new Error(`Add product failed: ${addProductResponse.status}`);
+      }
+      
+      const data = await addProductResponse.json();
+      data.success ? alert('Product Added') : alert('Failed');
     }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error adding product: ' + error.message);
   }
+}
 
   return (
     <div className='addproduct'>
@@ -85,3 +102,4 @@ const AddProduct = () => {
 }
 
 export default AddProduct
+
