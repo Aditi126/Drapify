@@ -46,10 +46,19 @@ const upload = multer({storage: storage})
 //Creating upload endpoint for images
 
 app.post("/upload", upload.single("product"), (req, res) => {
-  res.json({
-    success: 1,
-    image_url: req.file.path 
-  });
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: 0, message: "No file uploaded" });
+    }
+
+    return res.json({
+      success: 1,
+      image_url: req.file.path,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    return res.status(500).json({ success: 0, error: err.message });
+  }
 });
 
 
